@@ -1,5 +1,5 @@
 T=[0;0;0;0];
-
+n=[0;0]
 x0 = 1;
 y0 = 1;
 vx = 0.5;
@@ -10,29 +10,49 @@ j = a;
 
 
 t = 0.1;
-
+beta = [0.01; 0.02; 0.001; 0.005];
 F = [1 0 t 0 ; 0 1 0 t; 0 0 1 0 ; 0 0 0 1];
-S = [x0; y0; 0.5 ; 0.5];
+X = [x0; y0; 0.5 ; 0.5];
 Q = [0.25*t*t/2, 2*t*t*t/3, 0, 0;0.25*t, 0.25*t*t/2, 0, 0 ; 0, 0, 0.25*0.25*t*t/2, 0.25*0.25*2*t*t*t/3; 0, 0, 0.25*0.25*t, 0.25*0.25*t*t/2];
+H = [1, 0, 0, 0;0 ,0 ,1 ,0];
+zero = [0;0;0;0];
+Vk = awgn(zero,1);
+X1 = F*X + Q*Vk;
+xi = X(1,1);
+yi = X(2,1);
+ri=sqrt(xi^2+yi^2)
+thetai=atan(yi/xi)
+w = awgn(n,1);
 
-vk = [0;0;0;0];
-z = awgn(vk,1);
-S1 = F*S + Q*vk;
-T=T+S1;
-for t = 0.2:0.1:1
+B = [cos(thetai) , -1*ri*sin(thetai); sin(thetai) , ri*cos(thetai)];
+C = [1 , 0 , ri , 0; 0 , 1 , 0 , thetai];
+
+Z = H*X + B*C*beta + w;
+T=T+X1;
+for t = 0.2:0.1:2
     F = [1 0 t 0 ; 0 1 0 t; 0 0 1 0 ; 0 0 0 1];
-    %S = [x0; y0; 0.5 ; 0.5]
     Q = [0.25*t*t/2, 2*t*t*t/3, 0, 0;0.25*t, 0.25*t*t/2, 0, 0 ; 0, 0, 0.25*0.25*t*t/2, 0.25*0.25*2*t*t*t/3; 0, 0, 0.25*0.25*t, 0.25*0.25*t*t/2];
-    z = awgn(vk,1);
-    S1 = F*S1 + Q*z;
+    Vk = awgn(zero,1);
+    X1 = F*X1 + Q*Vk;
     
+    xi = X1(1,1);
+    yi = X1(2,1);
+    ri=sqrt(xi^2+yi^2)
+    thetai=atan(yi/xi)
     
-    T=horzcat(T,S1);
+    B = [cos(thetai) , -1*ri*sin(thetai); sin(thetai) , ri*cos(thetai)];
+    C = [1 , 0 , ri , 0; 0 , 1 , 0 , thetai];
+    w = awgn(n,1);
+    
+    Z1 = H*X1 + B*C*beta + w;
+    Z=horzcat(Z,Z1);
+    
+    T=horzcat(T,X1);
     
 end 
   T2 = T'
   plot(T2(:,1),T2(:,2))
-
+  disp(Z);
   
   
   
