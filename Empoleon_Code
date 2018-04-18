@@ -1,0 +1,28 @@
+X = [1000 1000 50 50]';
+T = 0.5;
+F = [eye(2) T*eye(2); zeros(2,2) eye(2)];
+F*X;
+
+Q = [T*T/2 2*T*T*T/3 0 0;
+    0 0 T*T/2 2*T*T*T/3;
+    T T*T/2 0 0 ;
+    0 0 T T*T/2];
+
+
+X1 = X;
+
+for i = 1:100
+
+    q = normrnd(0,10,[1,4])';
+
+    X = F*X + Q*q;
+    X1 = horzcat(X1,X);
+end
+X1 = X1';
+
+%disp(X1(:,1))
+plot(X1(:,1),X1(:,2))
+
+
+
+
